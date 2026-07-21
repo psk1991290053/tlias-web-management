@@ -40,7 +40,6 @@
 
 /* ===== Reset & Base ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 body {
   font-family: var(--font-sans);
   background: var(--page-plane);
@@ -49,7 +48,7 @@ body {
   min-height: 100vh;
 }
 
-/* ===== Layout ===== */
+/* ===== Header ===== */
 .app-header {
   background: var(--surface-1);
   border-bottom: 1px solid var(--border);
@@ -57,28 +56,51 @@ body {
   height: 56px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 32px;
   position: sticky;
   top: 0;
   z-index: 100;
   box-shadow: var(--shadow-sm);
 }
-.app-header h1 { font-size: 18px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; }
-.app-header .header-actions { display: flex; gap: 10px; align-items: center; }
+.app-header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
 
-.app-main {
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 24px 32px 48px;
+/* ===== Tab Navigation ===== */
+.tab-nav { display: flex; gap: 0; height: 56px; }
+.tab-btn {
+  height: 56px;
+  padding: 0 22px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition);
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
 }
+.tab-btn:hover { color: var(--text-primary); background: rgba(0,0,0,0.02); }
+.tab-btn.active { color: var(--series-1); }
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 12px; right: 12px;
+  height: 2px;
+  background: var(--series-1);
+  border-radius: 2px 2px 0 0;
+}
+.header-spacer { flex: 1; }
+
+/* ===== Main ===== */
+.app-main { max-width: 1320px; margin: 0 auto; padding: 24px 32px 48px; }
+.page { display: none; }
+.page.active { display: block; }
 
 /* ===== Stats Row ===== */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
-}
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 .stat-card {
   background: var(--surface-1);
   border-radius: var(--radius-md);
@@ -86,9 +108,9 @@ body {
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border);
 }
-.stat-card .stat-label { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
-.stat-card .stat-value { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-.stat-card .stat-delta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.stat-label { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+.stat-value { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stat-delta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
 
 /* ===== Section ===== */
 .section {
@@ -101,90 +123,53 @@ body {
 .section-header {
   padding: 16px 22px;
   border-bottom: 1px solid var(--gridline);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
 }
-.section-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.section-title { font-size: 15px; font-weight: 600; }
 .section-body { padding: 20px 22px; }
 
 /* ===== Toolbar ===== */
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 16px;
-}
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
 .toolbar .spacer { flex: 1; }
 
 /* ===== Form Controls ===== */
 .input-search {
-  width: 220px;
-  height: 36px;
-  padding: 0 12px;
-  border: 1px solid var(--baseline);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-family: var(--font-sans);
-  color: var(--text-primary);
-  background: var(--surface-1);
-  outline: none;
+  width: 220px; height: 36px; padding: 0 12px;
+  border: 1px solid var(--baseline); border-radius: var(--radius-sm);
+  font-size: 13px; font-family: var(--font-sans); color: var(--text-primary);
+  background: var(--surface-1); outline: none;
   transition: border-color var(--transition);
 }
 .input-search::placeholder { color: var(--text-muted); }
 .input-search:focus { border-color: var(--series-1); box-shadow: 0 0 0 3px rgba(42,120,214,0.12); }
 
 .select-filter {
-  height: 36px;
-  padding: 0 32px 0 12px;
-  border: 1px solid var(--baseline);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-family: var(--font-sans);
-  color: var(--text-primary);
-  background: var(--surface-1);
-  outline: none;
-  cursor: pointer;
+  height: 36px; padding: 0 32px 0 12px;
+  border: 1px solid var(--baseline); border-radius: var(--radius-sm);
+  font-size: 13px; font-family: var(--font-sans); color: var(--text-primary);
+  background: var(--surface-1); outline: none; cursor: pointer;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23898781' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
+  background-repeat: no-repeat; background-position: right 10px center;
   transition: border-color var(--transition);
 }
 .select-filter:focus { border-color: var(--series-1); box-shadow: 0 0 0 3px rgba(42,120,214,0.12); }
 
 .date-input {
-  height: 36px;
-  padding: 0 12px;
-  border: 1px solid var(--baseline);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-family: var(--font-sans);
-  color: var(--text-primary);
-  background: var(--surface-1);
-  outline: none;
+  height: 36px; padding: 0 12px;
+  border: 1px solid var(--baseline); border-radius: var(--radius-sm);
+  font-size: 13px; font-family: var(--font-sans); color: var(--text-primary);
+  background: var(--surface-1); outline: none;
   transition: border-color var(--transition);
 }
 .date-input:focus { border-color: var(--series-1); box-shadow: 0 0 0 3px rgba(42,120,214,0.12); }
 
 /* ===== Buttons ===== */
 .btn {
-  height: 36px;
-  padding: 0 16px;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-family: var(--font-sans);
-  font-weight: 500;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-  transition: all var(--transition);
-  user-select: none;
+  height: 36px; padding: 0 16px; border: none; border-radius: var(--radius-sm);
+  font-size: 13px; font-family: var(--font-sans); font-weight: 500;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  white-space: nowrap; transition: all var(--transition); user-select: none;
 }
 .btn:active { transform: scale(0.97); }
 .btn-primary { background: var(--series-1); color: #fff; }
@@ -203,97 +188,52 @@ body {
 
 /* ===== Table ===== */
 .table-wrap { overflow-x: auto; }
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
 thead th {
-  text-align: left;
-  padding: 10px 14px;
-  color: var(--text-secondary);
-  font-weight: 500;
-  font-size: 12px;
-  text-transform: none;
-  border-bottom: 2px solid var(--gridline);
-  white-space: nowrap;
-  background: var(--surface-2);
+  text-align: left; padding: 10px 14px;
+  color: var(--text-secondary); font-weight: 500; font-size: 12px;
+  border-bottom: 2px solid var(--gridline); white-space: nowrap; background: var(--surface-2);
 }
 thead th:first-child { border-radius: var(--radius-sm) 0 0 0; }
 thead th:last-child { border-radius: 0 var(--radius-sm) 0 0; }
-tbody td {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--gridline);
-  color: var(--text-primary);
-}
+tbody td { padding: 12px 14px; border-bottom: 1px solid var(--gridline); }
 tbody tr:hover { background: rgba(42,120,214,0.03); }
 tbody tr:last-child td { border-bottom: none; }
-
 .checkbox-cell { width: 40px; text-align: center; }
-input[type="checkbox"] {
-  width: 16px; height: 16px; cursor: pointer; accent-color: var(--series-1);
-}
+input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--series-1); }
 .actions-cell { white-space: nowrap; display: flex; gap: 6px; }
 .actions-cell .btn { height: 28px; font-size: 12px; padding: 0 10px; }
 
 .gender-badge {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 99px;
-  font-size: 12px;
-  font-weight: 500;
+  display: inline-block; padding: 2px 10px; border-radius: 99px;
+  font-size: 12px; font-weight: 500;
 }
 .gender-male { background: rgba(42,120,214,0.10); color: var(--series-1); }
 .gender-female { background: rgba(232,123,164,0.10); color: #c94573; }
-
 .job-badge {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 99px;
-  font-size: 12px;
-  font-weight: 500;
+  display: inline-block; padding: 2px 10px; border-radius: 99px;
+  font-size: 12px; font-weight: 500;
 }
-
-.empty-state {
-  text-align: center;
-  padding: 48px 0;
-  color: var(--text-muted);
-}
-.empty-state svg { margin-bottom: 12px; opacity: 0.3; }
+.empty-state { text-align: center; padding: 48px 0; color: var(--text-muted); }
 
 /* ===== Pagination ===== */
 .pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-top: 16px;
-  margin-top: 8px;
-  border-top: 1px solid var(--gridline);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding-top: 16px; margin-top: 8px; border-top: 1px solid var(--gridline);
 }
 .pagination-info { font-size: 13px; color: var(--text-secondary); }
 .pagination-btns { display: flex; gap: 4px; align-items: center; }
 .pagination-btns .btn { min-width: 36px; justify-content: center; }
 .pagination-btns .btn.active { background: var(--series-1); color: #fff; border-color: var(--series-1); }
 .page-jump {
-  width: 48px;
-  height: 30px;
-  text-align: center;
-  border: 1px solid var(--baseline);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-family: var(--font-sans);
-  outline: none;
+  width: 48px; height: 30px; text-align: center;
+  border: 1px solid var(--baseline); border-radius: var(--radius-sm);
+  font-size: 13px; font-family: var(--font-sans); outline: none;
 }
 
 /* ===== Charts Row ===== */
-.charts-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-.chart-container { width: 100%; height: 380px; }
-
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.chart-container { width: 100%; height: 400px; }
 @media (max-width: 900px) {
   .charts-row { grid-template-columns: 1fr; }
   .stats-row { grid-template-columns: repeat(2, 1fr); }
@@ -301,146 +241,143 @@ input[type="checkbox"] {
 
 /* ===== Modal Overlay ===== */
 .modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(11,11,11,0.40);
-  z-index: 200;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(4px);
+  display: none; position: fixed; inset: 0;
+  background: rgba(11,11,11,0.40); z-index: 200;
+  align-items: flex-start; justify-content: center;
+  backdrop-filter: blur(4px); overflow-y: auto; padding: 40px 0;
 }
 .modal-overlay.active { display: flex; }
-
 .modal {
-  background: var(--surface-1);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  width: 560px;
-  max-width: 94vw;
-  max-height: 90vh;
-  overflow-y: auto;
-  animation: modalIn 200ms ease;
+  background: var(--surface-1); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md); width: 640px; max-width: 94vw;
+  animation: modalIn 200ms ease; margin: auto;
 }
+.modal-lg { width: 760px; }
 @keyframes modalIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
-
 .modal-header {
-  padding: 18px 24px;
-  border-bottom: 1px solid var(--gridline);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  padding: 18px 24px; border-bottom: 1px solid var(--gridline);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--surface-1); z-index: 1;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 .modal-title { font-size: 16px; font-weight: 600; }
 .modal-close {
-  width: 32px; height: 32px;
-  border: none; background: transparent;
-  font-size: 20px; color: var(--text-muted);
-  cursor: pointer; border-radius: 50%;
+  width: 32px; height: 32px; border: none; background: transparent;
+  font-size: 20px; color: var(--text-muted); cursor: pointer; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   transition: all var(--transition);
 }
 .modal-close:hover { background: var(--surface-2); color: var(--text-primary); }
 .modal-body { padding: 24px; }
 .modal-footer {
-  padding: 14px 24px;
-  border-top: 1px solid var(--gridline);
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  padding: 14px 24px; border-top: 1px solid var(--gridline);
+  display: flex; justify-content: flex-end; gap: 10px;
+  position: sticky; bottom: 0; background: var(--surface-1); z-index: 1;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 /* ===== Form ===== */
 .form-group { margin-bottom: 18px; }
 .form-group:last-child { margin-bottom: 0; }
 .form-label {
-  display: block;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
+  display: block; font-size: 13px; font-weight: 500;
+  color: var(--text-secondary); margin-bottom: 6px;
 }
 .form-label .required { color: var(--critical); margin-left: 2px; }
 .form-input {
-  width: 100%;
-  height: 38px;
-  padding: 0 12px;
-  border: 1px solid var(--baseline);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-family: var(--font-sans);
-  color: var(--text-primary);
-  background: var(--surface-1);
-  outline: none;
-  transition: border-color var(--transition);
+  width: 100%; height: 38px; padding: 0 12px;
+  border: 1px solid var(--baseline); border-radius: var(--radius-sm);
+  font-size: 13px; font-family: var(--font-sans); color: var(--text-primary);
+  background: var(--surface-1); outline: none; transition: border-color var(--transition);
 }
 .form-input:focus { border-color: var(--series-1); box-shadow: 0 0 0 3px rgba(42,120,214,0.10); }
 .form-input.error { border-color: var(--critical); }
+.form-input.small { height: 34px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* ===== File Upload ===== */
+.file-upload-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.file-upload-btn {
+  position: relative; overflow: hidden;
+}
+.file-upload-btn input[type="file"] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+}
+.image-preview {
+  width: 80px; height: 80px; border-radius: var(--radius-sm);
+  object-fit: cover; border: 1px solid var(--baseline);
+}
+.upload-status { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+
+/* ===== Work Experience Card ===== */
+.expr-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--gridline); }
+.expr-section-title {
+  font-size: 14px; font-weight: 600; margin-bottom: 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.expr-card {
+  background: var(--surface-2); border-radius: var(--radius-md);
+  padding: 16px; margin-bottom: 12px; position: relative;
+  border: 1px solid var(--border);
+}
+.expr-card-remove {
+  position: absolute; top: 8px; right: 8px;
+  width: 26px; height: 26px; border: none; background: transparent;
+  color: var(--critical); font-size: 18px; cursor: pointer; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition);
+}
+.expr-card-remove:hover { background: rgba(208,59,59,0.10); }
+.expr-empty { text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px; }
+
+/* ===== View Work Experience Modal ===== */
+.expr-timeline { padding: 4px 0; }
+.expr-timeline-item {
+  padding: 16px 16px 16px 28px; border-left: 2px solid var(--baseline);
+  position: relative; margin-left: 8px;
+}
+.expr-timeline-item::before {
+  content: ''; position: absolute; left: -7px; top: 20px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--series-1); border: 2px solid var(--surface-1);
+  box-shadow: 0 0 0 2px var(--series-1);
+}
+.expr-timeline-item:last-child { border-left-color: transparent; }
+.expr-timeline-company { font-weight: 600; font-size: 14px; }
+.expr-timeline-job { font-size: 13px; color: var(--text-secondary); }
+.expr-timeline-date { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
 /* ===== Toast ===== */
-.toast-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+.toast-container { position: fixed; top: 20px; right: 20px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
 .toast {
-  padding: 12px 20px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 500;
-  color: #fff;
-  box-shadow: var(--shadow-md);
-  animation: toastIn 300ms ease;
-  max-width: 340px;
+  padding: 12px 20px; border-radius: var(--radius-sm); font-size: 13px;
+  font-weight: 500; color: #fff; box-shadow: var(--shadow-md);
+  animation: toastIn 300ms ease; max-width: 340px;
 }
 .toast-success { background: var(--success); }
 .toast-error { background: var(--critical); }
 @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
 
-/* ===== Loading ===== */
-.loading-spinner {
-  display: none;
-  width: 24px; height: 24px;
-  border: 3px solid var(--gridline);
-  border-top-color: var(--series-1);
-  border-radius: 50%;
-  animation: spin 600ms linear infinite;
-}
-.loading-spinner.active { display: inline-block; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ===== File Upload ===== */
-.image-preview {
-  width: 80px; height: 80px;
-  border-radius: var(--radius-sm);
-  object-fit: cover;
-  border: 1px solid var(--baseline);
-  margin-top: 8px;
-}
-
 /* ===== Confirm Dialog ===== */
-.confirm-content {
-  text-align: center;
-  padding: 12px 0;
-}
+.confirm-content { text-align: center; padding: 12px 0; }
 .confirm-icon {
-  width: 48px; height: 48px;
-  border-radius: 50%;
-  background: rgba(208,59,59,0.10);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-  font-size: 24px;
-  color: var(--critical);
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(208,59,59,0.10); display: inline-flex;
+  align-items: center; justify-content: center; margin-bottom: 16px;
+  font-size: 24px; color: var(--critical);
 }
 .confirm-text { font-size: 14px; color: var(--text-secondary); }
 .confirm-highlight { font-weight: 600; color: var(--text-primary); }
+
+/* ===== Work Exp Badge (table) ===== */
+.expr-count-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 99px;
+  font-size: 11px; font-weight: 500;
+  background: rgba(42,120,214,0.08); color: var(--series-1);
+  cursor: pointer; transition: all var(--transition);
+}
+.expr-count-badge:hover { background: rgba(42,120,214,0.18); }
 </style>
 </head>
 <body>
@@ -448,107 +385,143 @@ input[type="checkbox"] {
 <!-- ===== Header ===== -->
 <header class="app-header">
   <h1>📋 员工管理系统</h1>
-  <div class="header-actions">
-    <button class="btn btn-ghost btn-sm" onclick="refreshData()">🔄 刷新</button>
-  </div>
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="employee" onclick="switchTab('employee')">👥 员工管理</button>
+    <button class="tab-btn" data-tab="report" onclick="switchTab('report')">📊 统计报表</button>
+  </nav>
+  <span class="header-spacer"></span>
+  <button class="btn btn-ghost btn-sm" onclick="handleRefresh()">🔄 刷新</button>
 </header>
 
 <!-- ===== Main ===== -->
 <main class="app-main">
 
-  <!-- Stats Row -->
-  <div class="stats-row" id="statsRow">
-    <div class="stat-card">
-      <div class="stat-label">员工总数</div>
-      <div class="stat-value" id="statTotal" style="color: var(--series-1);">--</div>
-      <div class="stat-delta">在职员工</div>
+  <!-- ==================== Page: 员工管理 ==================== -->
+  <div class="page active" id="page-employee">
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">员工总数</div>
+        <div class="stat-value" id="statTotal" style="color:var(--series-1);">--</div>
+        <div class="stat-delta">在职员工</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">男性员工</div>
+        <div class="stat-value" id="statMale" style="color:var(--series-2);">--</div>
+        <div class="stat-delta">占比 <span id="statMalePct">--</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">女性员工</div>
+        <div class="stat-value" id="statFemale" style="color:var(--series-3);">--</div>
+        <div class="stat-delta">占比 <span id="statFemalePct">--</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">职位类别</div>
+        <div class="stat-value" id="statJobTypes" style="color:var(--series-5);">--</div>
+        <div class="stat-delta">覆盖岗位类型</div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">男性员工</div>
-      <div class="stat-value" id="statMale" style="color: var(--series-2);">--</div>
-      <div class="stat-delta">占比 <span id="statMalePct">--</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">女性员工</div>
-      <div class="stat-value" id="statFemale" style="color: var(--series-3);">--</div>
-      <div class="stat-delta">占比 <span id="statFemalePct">--</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">职位类别</div>
-      <div class="stat-value" id="statJobTypes" style="color: var(--series-5);">--</div>
-      <div class="stat-delta">覆盖岗位类型</div>
+
+    <!-- Employee Table Section -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">员工列表</span>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" id="btnBatchDelete" style="display:none;" onclick="batchDelete()">🗑️ 批量删除</button>
+          <button class="btn btn-primary" onclick="openAddModal()">+ 新增员工</button>
+        </div>
+      </div>
+      <div class="section-body">
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <input type="text" class="input-search" id="searchName" placeholder="🔍 搜索员工姓名..." oninput="onSearchChange()">
+          <select class="select-filter" id="filterGender" onchange="onFilterChange()">
+            <option value="">全部性别</option>
+            <option value="1">男</option>
+            <option value="2">女</option>
+          </select>
+          <input type="date" class="date-input" id="filterBegin" onchange="onFilterChange()" title="入职开始日期">
+          <span style="color:var(--text-muted);font-size:12px;">至</span>
+          <input type="date" class="date-input" id="filterEnd" onchange="onFilterChange()" title="入职结束日期">
+          <button class="btn btn-reset btn-sm" onclick="resetFilters()">清除筛选</button>
+          <span class="spacer"></span>
+          <span style="font-size:12px;color:var(--text-muted);" id="tableInfo">加载中...</span>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="checkbox-cell"><input type="checkbox" id="checkAll" onchange="toggleCheckAll()"></th>
+                <th>ID</th>
+                <th>姓名</th>
+                <th>性别</th>
+                <th>手机号</th>
+                <th>职位</th>
+                <th>薪资</th>
+                <th>所属部门</th>
+                <th>入职日期</th>
+                <th>工作经历</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr><td colspan="11" class="empty-state">加载中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <div class="pagination-info" id="paginationInfo">--</div>
+          <div class="pagination-btns" id="paginationBtns"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Employee Table Section -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-title">👥 员工列表</span>
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-ghost btn-sm" id="btnBatchDelete" style="display:none;" onclick="batchDelete()">🗑️ 批量删除</button>
-        <button class="btn btn-primary" onclick="openAddModal()">+ 新增员工</button>
+  <!-- ==================== Page: 统计报表 ==================== -->
+  <div class="page" id="page-report">
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">员工总数</div>
+        <div class="stat-value" id="statTotal2" style="color:var(--series-1);">--</div>
+        <div class="stat-delta">在职员工</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">男性员工</div>
+        <div class="stat-value" id="statMale2" style="color:var(--series-2);">--</div>
+        <div class="stat-delta">占比 <span id="statMalePct2">--</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">女性员工</div>
+        <div class="stat-value" id="statFemale2" style="color:var(--series-3);">--</div>
+        <div class="stat-delta">占比 <span id="statFemalePct2">--</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">职位类别</div>
+        <div class="stat-value" id="statJobTypes2" style="color:var(--series-5);">--</div>
+        <div class="stat-delta">覆盖岗位类型</div>
       </div>
     </div>
-    <div class="section-body">
-      <!-- Toolbar -->
-      <div class="toolbar">
-        <input type="text" class="input-search" id="searchName" placeholder="🔍 搜索员工姓名..." oninput="onSearchChange()">
-        <select class="select-filter" id="filterGender" onchange="onFilterChange()">
-          <option value="">全部性别</option>
-          <option value="1">男</option>
-          <option value="2">女</option>
-        </select>
-        <input type="date" class="date-input" id="filterBegin" onchange="onFilterChange()" title="入职开始日期">
-        <span style="color:var(--text-muted);font-size:12px;">至</span>
-        <input type="date" class="date-input" id="filterEnd" onchange="onFilterChange()" title="入职结束日期">
-        <button class="btn btn-reset btn-sm" onclick="resetFilters()">清除筛选</button>
-        <span class="spacer"></span>
-        <span style="font-size:12px;color:var(--text-muted);" id="tableInfo">加载中...</span>
-      </div>
 
-      <!-- Table -->
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th class="checkbox-cell"><input type="checkbox" id="checkAll" onchange="toggleCheckAll()"></th>
-              <th>ID</th>
-              <th>姓名</th>
-              <th>性别</th>
-              <th>手机号</th>
-              <th>职位</th>
-              <th>薪资</th>
-              <th>所属部门</th>
-              <th>入职日期</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody">
-            <tr><td colspan="10" class="empty-state">加载中...</td></tr>
-          </tbody>
-        </table>
+    <!-- Charts -->
+    <div class="charts-row">
+      <div class="section">
+        <div class="section-header"><span class="section-title">📊 职位分布统计</span></div>
+        <div class="section-body" style="padding:8px 12px;">
+          <div class="chart-container" id="chartJob"></div>
+        </div>
       </div>
-
-      <!-- Pagination -->
-      <div class="pagination">
-        <div class="pagination-info" id="paginationInfo">--</div>
-        <div class="pagination-btns" id="paginationBtns"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Charts Section -->
-  <div class="charts-row">
-    <div class="section">
-      <div class="section-header"><span class="section-title">📊 职位分布统计</span></div>
-      <div class="section-body" style="padding:8px 12px;">
-        <div class="chart-container" id="chartJob"></div>
-      </div>
-    </div>
-    <div class="section">
-      <div class="section-header"><span class="section-title">⚥ 性别分布统计</span></div>
-      <div class="section-body" style="padding:8px 12px;">
-        <div class="chart-container" id="chartGender"></div>
+      <div class="section">
+        <div class="section-header"><span class="section-title">⚥ 性别分布统计</span></div>
+        <div class="section-body" style="padding:8px 12px;">
+          <div class="chart-container" id="chartGender"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -557,7 +530,7 @@ input[type="checkbox"] {
 
 <!-- ===== Add/Edit Modal ===== -->
 <div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
+  <div class="modal modal-lg">
     <div class="modal-header">
       <span class="modal-title" id="modalTitle">新增员工</span>
       <button class="modal-close" onclick="closeModal()">✕</button>
@@ -566,22 +539,23 @@ input[type="checkbox"] {
       <form id="empForm" onsubmit="submitForm(event)">
         <input type="hidden" id="formEmpId">
 
-        <div class="form-group">
-          <label class="form-label">用户名<span class="required">*</span></label>
-          <input type="text" class="form-input" id="formUsername" required placeholder="请输入用户名">
-        </div>
-
-        <div class="form-group" id="passwordGroup">
-          <label class="form-label">密码<span class="required">*</span></label>
-          <input type="text" class="form-input" id="formPassword" placeholder="请输入密码">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">姓名<span class="required">*</span></label>
-          <input type="text" class="form-input" id="formName" required placeholder="请输入姓名">
+        <!-- Basic Info -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">用户名<span class="required">*</span></label>
+            <input type="text" class="form-input" id="formUsername" required placeholder="请输入用户名">
+          </div>
+          <div class="form-group" id="passwordGroup">
+            <label class="form-label">密码<span class="required" id="passwordRequired">*</span></label>
+            <input type="text" class="form-input" id="formPassword" placeholder="请输入密码">
+          </div>
         </div>
 
         <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">姓名<span class="required">*</span></label>
+            <input type="text" class="form-input" id="formName" required placeholder="请输入姓名">
+          </div>
           <div class="form-group">
             <label class="form-label">性别<span class="required">*</span></label>
             <select class="select-filter" style="width:100%;" id="formGender" required>
@@ -590,13 +564,13 @@ input[type="checkbox"] {
               <option value="2">女</option>
             </select>
           </div>
+        </div>
+
+        <div class="form-row">
           <div class="form-group">
             <label class="form-label">手机号</label>
             <input type="text" class="form-input" id="formPhone" placeholder="请输入手机号">
           </div>
-        </div>
-
-        <div class="form-row">
           <div class="form-group">
             <label class="form-label">职位<span class="required">*</span></label>
             <select class="select-filter" style="width:100%;" id="formJob" required>
@@ -608,35 +582,74 @@ input[type="checkbox"] {
               <option value="5">咨询师</option>
             </select>
           </div>
+        </div>
+
+        <div class="form-row">
           <div class="form-group">
             <label class="form-label">薪资</label>
             <input type="number" class="form-input" id="formSalary" placeholder="请输入薪资" min="0">
           </div>
-        </div>
-
-        <div class="form-row">
           <div class="form-group">
             <label class="form-label">所属部门</label>
             <select class="select-filter" style="width:100%;" id="formDept">
               <option value="">请选择部门</option>
             </select>
           </div>
+        </div>
+
+        <div class="form-row">
           <div class="form-group">
             <label class="form-label">入职日期</label>
             <input type="date" class="date-input" style="width:100%;" id="formEntryDate">
           </div>
+          <div class="form-group"></div>
         </div>
 
+        <!-- Image Upload -->
         <div class="form-group">
-          <label class="form-label">头像URL</label>
-          <input type="text" class="form-input" id="formImage" placeholder="请输入头像图片URL（选填）">
-          <img class="image-preview" id="imagePreview" src="" alt="预览" style="display:none;">
+          <label class="form-label">头像</label>
+          <div class="file-upload-row">
+            <div class="btn btn-ghost file-upload-btn" style="position:relative;overflow:hidden;">
+              📁 选择图片
+              <input type="file" id="formImageFile" accept="image/*" onchange="handleImageSelect(this)">
+            </div>
+            <input type="text" class="form-input" id="formImage" placeholder="或手动输入头像URL" style="flex:1;min-width:200px;">
+            <span class="upload-status" id="uploadStatus"></span>
+          </div>
+          <img class="image-preview" id="imagePreview" src="" alt="预览" style="display:none;margin-top:8px;">
+        </div>
+
+        <!-- Work Experience -->
+        <div class="expr-section">
+          <div class="expr-section-title">
+            <span>💼 工作经历</span>
+            <button type="button" class="btn btn-primary btn-sm" onclick="addExprEntry()">+ 添加经历</button>
+          </div>
+          <div id="exprContainer">
+            <div class="expr-empty">暂无工作经历，点击上方按钮添加</div>
+          </div>
         </div>
       </form>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal()">取消</button>
       <button class="btn btn-primary" id="btnSubmit" onclick="document.getElementById('empForm').requestSubmit()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== View Work Experience Modal ===== -->
+<div class="modal-overlay" id="exprViewOverlay">
+  <div class="modal" style="width:500px;">
+    <div class="modal-header">
+      <span class="modal-title">💼 <span id="exprViewName">--</span> 的工作经历</span>
+      <button class="modal-close" onclick="closeExprView()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="expr-timeline" id="exprViewContent"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeExprView()">关闭</button>
     </div>
   </div>
 </div>
@@ -668,9 +681,6 @@ input[type="checkbox"] {
 // ===== Constants =====
 const API_BASE = 'http://localhost:8080';
 const JOB_MAP = { 1: '班主任', 2: '讲师', 3: '学工主管', 4: '教研主管', 5: '咨询师' };
-const GENDER_MAP = { 1: '男', 2: '女' };
-
-// Job badge colors (use palette categorical slots, lightened for background)
 const JOB_COLORS = {
   1: { bg: 'rgba(42,120,214,0.10)', fg: '#2a78d6' },
   2: { bg: 'rgba(0,131,0,0.10)',   fg: '#008300' },
@@ -681,6 +691,7 @@ const JOB_COLORS = {
 
 // ===== State =====
 let state = {
+  currentTab: 'employee',
   page: 1,
   pageSize: 10,
   total: 0,
@@ -690,6 +701,8 @@ let state = {
   pendingDeleteIds: [],
   depts: [],
   searchTimer: null,
+  exprEntries: [],  // work experience entries in current form
+  uploadedImageUrl: '',
 };
 
 // ===== Init =====
@@ -698,12 +711,9 @@ document.addEventListener('DOMContentLoaded', () => {
   refreshData();
   initCharts();
 
-  // Image preview
+  // Image URL input change -> preview
   document.getElementById('formImage').addEventListener('input', function() {
-    const url = this.value.trim();
-    const preview = document.getElementById('imagePreview');
-    if (url) { preview.src = url; preview.style.display = 'block'; }
-    else { preview.src = ''; preview.style.display = 'none'; }
+    updateImagePreview(this.value.trim());
   });
 
   // Modal overlay click to close
@@ -713,20 +723,49 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('confirmOverlay').addEventListener('click', function(e) {
     if (e.target === this) closeConfirm();
   });
+  document.getElementById('exprViewOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeExprView();
+  });
 
   // Keyboard shortcuts
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeModal(); closeConfirm(); }
+    if (e.key === 'Escape') { closeModal(); closeConfirm(); closeExprView(); }
   });
 });
+
+// ===== Tab Navigation =====
+function switchTab(tab) {
+  state.currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + tab));
+
+  if (tab === 'report') {
+    refreshCharts();
+    updateStats();
+  }
+
+  // Update header refresh button behavior
+  document.getElementById('statTotal').textContent = document.getElementById('statTotal2').textContent;
+}
+
+function handleRefresh() {
+  if (state.currentTab === 'employee') {
+    refreshData();
+  } else {
+    refreshCharts();
+    updateStats();
+  }
+}
 
 // ===== API Helpers =====
 async function api(url, options = {}) {
   try {
-    const res = await fetch(API_BASE + url, {
-      headers: { 'Content-Type': 'application/json', ...options.headers },
-      ...options,
-    });
+    // For FormData, don't set Content-Type header
+    const headers = options.body instanceof FormData
+      ? { ...options.headers }
+      : { 'Content-Type': 'application/json', ...options.headers };
+
+    const res = await fetch(API_BASE + url, { ...options, headers });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const result = await res.json();
     if (result.code !== 1) throw new Error(result.msg || '请求失败');
@@ -735,6 +774,89 @@ async function api(url, options = {}) {
     showToast(err.message, 'error');
     throw err;
   }
+}
+
+// ===== Image Upload =====
+async function handleImageSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const statusEl = document.getElementById('uploadStatus');
+  statusEl.innerHTML = '<span class="loading-spinner" style="display:inline-block;width:16px;height:16px;border-width:2px;"></span> 上传中...';
+  statusEl.style.color = 'var(--text-muted)';
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    const url = await api('/upload', { method: 'POST', body: formData });
+
+    document.getElementById('formImage').value = url;
+    updateImagePreview(url);
+    state.uploadedImageUrl = url;
+    statusEl.innerHTML = '✅ 上传成功';
+    statusEl.style.color = 'var(--success)';
+    setTimeout(() => { statusEl.innerHTML = ''; }, 2000);
+  } catch (e) {
+    statusEl.innerHTML = '❌ 上传失败';
+    statusEl.style.color = 'var(--critical)';
+    setTimeout(() => { statusEl.innerHTML = ''; }, 3000);
+  }
+}
+
+function updateImagePreview(url) {
+  const preview = document.getElementById('imagePreview');
+  if (url) { preview.src = url; preview.style.display = 'block'; }
+  else { preview.src = ''; preview.style.display = 'none'; }
+}
+
+// ===== Work Experience (Form) =====
+function addExprEntry(data = null) {
+  const idx = state.exprEntries.length;
+  state.exprEntries.push(data || { company: '', job: '', begin: '', end: '' });
+  renderExprEntries();
+}
+
+function removeExprEntry(idx) {
+  state.exprEntries.splice(idx, 1);
+  renderExprEntries();
+}
+
+function renderExprEntries() {
+  const container = document.getElementById('exprContainer');
+  if (state.exprEntries.length === 0) {
+    container.innerHTML = '<div class="expr-empty">暂无工作经历，点击上方按钮添加</div>';
+    return;
+  }
+  container.innerHTML = state.exprEntries.map((entry, i) => `
+    <div class="expr-card">
+      <button type="button" class="expr-card-remove" onclick="removeExprEntry(${i})" title="删除此经历">✕</button>
+      <div class="form-row-3" style="margin-bottom:10px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:12px;">公司名称<span class="required">*</span></label>
+          <input type="text" class="form-input small" value="${escHtmlAttr(entry.company || '')}"
+            onchange="state.exprEntries[${i}].company = this.value" placeholder="公司名称" required>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:12px;">职位<span class="required">*</span></label>
+          <input type="text" class="form-input small" value="${escHtmlAttr(entry.job || '')}"
+            onchange="state.exprEntries[${i}].job = this.value" placeholder="担任职位" required>
+        </div>
+        <div></div>
+      </div>
+      <div class="form-row" style="margin-bottom:0;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:12px;">开始日期<span class="required">*</span></label>
+          <input type="date" class="date-input small" style="width:100%;" value="${entry.begin || ''}"
+            onchange="state.exprEntries[${i}].begin = this.value" required>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:12px;">结束日期</label>
+          <input type="date" class="date-input small" style="width:100%;" value="${entry.end || ''}"
+            onchange="state.exprEntries[${i}].end = this.value">
+        </div>
+      </div>
+    </div>
+  `).join('');
 }
 
 // ===== Load Departments =====
@@ -748,7 +870,7 @@ async function loadDepartments() {
 function renderDeptOptions() {
   const select = document.getElementById('formDept');
   select.innerHTML = '<option value="">请选择部门</option>' +
-    state.depts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+    state.depts.map(d => `<option value="${d.id}">${escHtml(d.name)}</option>`).join('');
 }
 
 // ===== Load Employee Data =====
@@ -778,7 +900,7 @@ async function refreshData() {
     updateStats();
   } catch (e) {
     document.getElementById('tableBody').innerHTML =
-      '<tr><td colspan="10" class="empty-state">❌ 加载失败，请确认后端服务已启动</td></tr>';
+      '<tr><td colspan="11" class="empty-state">❌ 加载失败，请确认后端服务已启动</td></tr>';
   }
 }
 
@@ -788,7 +910,7 @@ function renderTable() {
   const emps = state.employees;
 
   if (emps.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="10" class="empty-state">📭 暂无员工数据</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="11" class="empty-state">📭 暂无员工数据</td></tr>';
     return;
   }
 
@@ -807,6 +929,11 @@ function renderTable() {
     const phone = emp.phone || '--';
     const checked = state.selectedIds.has(emp.id) ? 'checked' : '';
 
+    const exprCount = emp.exprList ? emp.exprList.length : 0;
+    const exprBadge = exprCount > 0
+      ? `<span class="expr-count-badge" onclick="viewWorkExperience(${emp.id}, '${escHtmlAttr(emp.name)}')" title="点击查看工作经历">${exprCount} 条经历</span>`
+      : '<span style="color:var(--text-muted);font-size:12px;">无</span>';
+
     return `<tr>
       <td class="checkbox-cell"><input type="checkbox" ${checked} onchange="toggleSelect(${emp.id}, this.checked)"></td>
       <td>${emp.id}</td>
@@ -817,10 +944,11 @@ function renderTable() {
       <td>${salary}</td>
       <td>${escHtml(deptName)}</td>
       <td>${entryDate}</td>
+      <td>${exprBadge}</td>
       <td>
         <div class="actions-cell">
           <button class="btn btn-primary btn-sm" onclick="openEditModal(${emp.id})">编辑</button>
-          <button class="btn btn-danger btn-sm" onclick="confirmDelete([${emp.id}], '${escHtml(emp.name)}')">删除</button>
+          <button class="btn btn-danger btn-sm" onclick="confirmDelete([${emp.id}], '${escHtmlAttr(emp.name)}')">删除</button>
         </div>
       </td>
     </tr>`;
@@ -829,15 +957,45 @@ function renderTable() {
   document.getElementById('tableInfo').textContent = `共 ${state.total} 条记录`;
 }
 
+// ===== View Work Experience =====
+async function viewWorkExperience(empId, empName) {
+  document.getElementById('exprViewName').textContent = empName;
+  document.getElementById('exprViewContent').innerHTML = '<div class="expr-empty">加载中...</div>';
+  document.getElementById('exprViewOverlay').classList.add('active');
+
+  try {
+    const emp = await api(`/emps/${empId}`);
+    const exprList = emp.exprList || [];
+    const content = document.getElementById('exprViewContent');
+
+    if (exprList.length === 0) {
+      content.innerHTML = '<div class="expr-empty">暂无工作经历</div>';
+      return;
+    }
+
+    content.innerHTML = exprList.map(e => `
+      <div class="expr-timeline-item">
+        <div class="expr-timeline-company">${escHtml(e.company || '--')}</div>
+        <div class="expr-timeline-job">${escHtml(e.job || '--')}</div>
+        <div class="expr-timeline-date">${e.begin || '--'} ~ ${e.end || '至今'}</div>
+      </div>
+    `).join('');
+  } catch (e) {
+    document.getElementById('exprViewContent').innerHTML = '<div class="expr-empty">❌ 加载失败</div>';
+  }
+}
+
+function closeExprView() {
+  document.getElementById('exprViewOverlay').classList.remove('active');
+}
+
 // ===== Render Pagination =====
 function renderPagination() {
   const totalPages = Math.ceil(state.total / state.pageSize) || 1;
   const container = document.getElementById('paginationBtns');
-
   let html = '';
   html += `<button class="btn btn-ghost btn-sm" onclick="goPage(${state.page - 1})" ${state.page <= 1 ? 'disabled' : ''}>‹ 上一页</button>`;
 
-  // Page buttons
   const maxButtons = 7;
   let start = Math.max(1, state.page - Math.floor(maxButtons / 2));
   let end = Math.min(totalPages, start + maxButtons - 1);
@@ -848,7 +1006,6 @@ function renderPagination() {
   }
 
   html += `<button class="btn btn-ghost btn-sm" onclick="goPage(${state.page + 1})" ${state.page >= totalPages ? 'disabled' : ''}>下一页 ›</button>`;
-
   html += `<span style="margin-left:8px;font-size:12px;color:var(--text-muted);">跳至</span>
     <input type="number" class="page-jump" id="pageJump" min="1" max="${totalPages}" value="${state.page}"
       onkeydown="if(event.key==='Enter')goPage(parseInt(this.value))">`;
@@ -870,28 +1027,22 @@ function toggleSelect(id, checked) {
   else state.selectedIds.delete(id);
   updateBatchDeleteBtn();
 }
-
 function toggleCheckAll() {
   const checked = document.getElementById('checkAll').checked;
   state.employees.forEach(e => {
-    if (checked) state.selectedIds.add(e.id);
-    else state.selectedIds.delete(e.id);
+    if (checked) state.selectedIds.add(e.id); else state.selectedIds.delete(e.id);
   });
   renderTable();
   updateBatchDeleteBtn();
 }
-
 function updateBatchDeleteBtn() {
   const btn = document.getElementById('btnBatchDelete');
   const count = state.selectedIds.size;
   if (count > 0) {
     btn.style.display = 'inline-flex';
     btn.textContent = `🗑️ 批量删除 (${count})`;
-  } else {
-    btn.style.display = 'none';
-  }
+  } else { btn.style.display = 'none'; }
 }
-
 function batchDelete() {
   if (state.selectedIds.size === 0) return;
   confirmDelete([...state.selectedIds], `选中的 ${state.selectedIds.size} 名员工`);
@@ -904,17 +1055,14 @@ function confirmDelete(ids, label) {
     `确定要删除 <span class="confirm-highlight">${label}</span> 吗？<br><span style="font-size:12px;color:var(--text-muted);">此操作不可撤销</span>`;
   document.getElementById('confirmOverlay').classList.add('active');
 }
-
 function closeConfirm() {
   document.getElementById('confirmOverlay').classList.remove('active');
   state.pendingDeleteIds = [];
 }
-
 async function executeDelete() {
   const ids = state.pendingDeleteIds;
   if (ids.length === 0) return;
   closeConfirm();
-
   try {
     await api(`/emps?${ids.map(id => 'ids=' + id).join('&')}`, { method: 'DELETE' });
     showToast(`成功删除 ${ids.length} 名员工`, 'success');
@@ -922,26 +1070,34 @@ async function executeDelete() {
     updateBatchDeleteBtn();
     if (state.employees.length === ids.length && state.page > 1) state.page--;
     refreshData();
-    refreshCharts();
+    if (state.currentTab === 'report') { refreshCharts(); updateStats(); }
   } catch (e) { /* toast already shown */ }
 }
 
 // ===== Add / Edit Modal =====
 function openAddModal() {
   state.editMode = false;
+  state.exprEntries = [];
+  state.uploadedImageUrl = '';
   document.getElementById('modalTitle').textContent = '新增员工';
   document.getElementById('btnSubmit').textContent = '确认添加';
   document.getElementById('formEmpId').value = '';
   document.getElementById('empForm').reset();
-  document.getElementById('passwordGroup').style.display = 'block';
+  document.getElementById('passwordGroup').style.display = '';
   document.getElementById('formPassword').required = true;
+  document.getElementById('passwordRequired').style.display = '';
   document.getElementById('imagePreview').style.display = 'none';
   document.getElementById('imagePreview').src = '';
+  document.getElementById('formImageFile').value = '';
+  document.getElementById('uploadStatus').innerHTML = '';
+  renderExprEntries();
   document.getElementById('modalOverlay').classList.add('active');
 }
 
 async function openEditModal(id) {
   state.editMode = true;
+  state.exprEntries = [];
+  state.uploadedImageUrl = '';
   document.getElementById('modalTitle').textContent = '编辑员工';
   document.getElementById('btnSubmit').textContent = '保存修改';
 
@@ -951,7 +1107,8 @@ async function openEditModal(id) {
     document.getElementById('formUsername').value = emp.username || '';
     document.getElementById('formPassword').value = '';
     document.getElementById('formPassword').required = false;
-    document.getElementById('passwordGroup').style.display = 'block';
+    document.getElementById('passwordRequired').style.display = 'none';
+    document.getElementById('passwordGroup').style.display = '';
     document.getElementById('formName').value = emp.name || '';
     document.getElementById('formGender').value = emp.gender || '';
     document.getElementById('formPhone').value = emp.phone || '';
@@ -960,10 +1117,19 @@ async function openEditModal(id) {
     document.getElementById('formDept').value = emp.deptId || '';
     document.getElementById('formEntryDate').value = emp.entryDate || '';
     document.getElementById('formImage').value = emp.image || '';
+    document.getElementById('formImageFile').value = '';
+    document.getElementById('uploadStatus').innerHTML = '';
 
-    const preview = document.getElementById('imagePreview');
-    if (emp.image) { preview.src = emp.image; preview.style.display = 'block'; }
-    else { preview.src = ''; preview.style.display = 'none'; }
+    updateImagePreview(emp.image);
+
+    // Load work experience
+    state.exprEntries = (emp.exprList || []).map(e => ({
+      company: e.company || '',
+      job: e.job || '',
+      begin: e.begin || '',
+      end: e.end || '',
+    }));
+    renderExprEntries();
 
     document.getElementById('modalOverlay').classList.add('active');
   } catch (e) { /* toast already shown */ }
@@ -972,6 +1138,9 @@ async function openEditModal(id) {
 function closeModal() {
   document.getElementById('modalOverlay').classList.remove('active');
   document.getElementById('empForm').reset();
+  state.exprEntries = [];
+  state.uploadedImageUrl = '';
+  renderExprEntries();
 }
 
 async function submitForm(e) {
@@ -987,6 +1156,14 @@ async function submitForm(e) {
     deptId: document.getElementById('formDept').value ? parseInt(document.getElementById('formDept').value) : null,
     entryDate: document.getElementById('formEntryDate').value || null,
     image: document.getElementById('formImage').value.trim() || null,
+    exprList: state.exprEntries
+      .filter(ex => ex.company && ex.job && ex.begin)  // only include valid entries
+      .map(ex => ({
+        company: ex.company,
+        job: ex.job,
+        begin: ex.begin,
+        end: ex.end || null,
+      })),
   };
 
   const id = document.getElementById('formEmpId').value;
@@ -1010,24 +1187,16 @@ async function submitForm(e) {
     }
     closeModal();
     refreshData();
-    refreshCharts();
+    if (state.currentTab === 'report') { refreshCharts(); updateStats(); }
   } catch (e) { /* toast already shown */ }
 }
 
 // ===== Search & Filter =====
 function onSearchChange() {
   clearTimeout(state.searchTimer);
-  state.searchTimer = setTimeout(() => {
-    state.page = 1;
-    refreshData();
-  }, 350);
+  state.searchTimer = setTimeout(() => { state.page = 1; refreshData(); }, 350);
 }
-
-function onFilterChange() {
-  state.page = 1;
-  refreshData();
-}
-
+function onFilterChange() { state.page = 1; refreshData(); }
 function resetFilters() {
   document.getElementById('searchName').value = '';
   document.getElementById('filterGender').value = '';
@@ -1044,21 +1213,28 @@ async function updateStats() {
     let maleCount = 0, femaleCount = 0;
     if (Array.isArray(genderData)) {
       genderData.forEach(item => {
-        if (item.name === '男' || item.gender === 1 || item.name === '男性') maleCount = item.value || item.count || 0;
-        if (item.name === '女' || item.gender === 2 || item.name === '女性') femaleCount = item.value || item.count || 0;
+        const name = (item.name || '').toString();
+        if (name.includes('男')) maleCount = item.value || item.count || 0;
+        if (name.includes('女')) femaleCount = item.value || item.count || 0;
       });
     }
     const total = maleCount + femaleCount;
+    const malePct = total > 0 ? Math.round(maleCount / total * 100) + '%' : '--';
+    const femalePct = total > 0 ? Math.round(femaleCount / total * 100) + '%' : '--';
 
-    document.getElementById('statTotal').textContent = total || state.total || '--';
-    document.getElementById('statMale').textContent = maleCount || '--';
-    document.getElementById('statFemale').textContent = femaleCount || '--';
-    document.getElementById('statMalePct').textContent = total > 0 ? Math.round(maleCount / total * 100) + '%' : '--';
-    document.getElementById('statFemalePct').textContent = total > 0 ? Math.round(femaleCount / total * 100) + '%' : '--';
+    // Update both pages' stat cards
+    ['', '2'].forEach(suffix => {
+      document.getElementById('statTotal' + suffix).textContent = total || '--';
+      document.getElementById('statMale' + suffix).textContent = maleCount || '--';
+      document.getElementById('statFemale' + suffix).textContent = femaleCount || '--';
+      document.getElementById('statMalePct' + suffix).textContent = malePct;
+      document.getElementById('statFemalePct' + suffix).textContent = femalePct;
+    });
 
     const jobData = await api('/report/empJobData');
     const jobCount = jobData?.jobList?.length || 0;
     document.getElementById('statJobTypes').textContent = jobCount || '--';
+    document.getElementById('statJobTypes2').textContent = jobCount || '--';
   } catch (e) { /* ignore */ }
 }
 
@@ -1068,8 +1244,6 @@ let chartJobInstance, chartGenderInstance;
 function initCharts() {
   chartJobInstance = echarts.init(document.getElementById('chartJob'));
   chartGenderInstance = echarts.init(document.getElementById('chartGender'));
-  refreshCharts();
-
   window.addEventListener('resize', () => {
     chartJobInstance?.resize();
     chartGenderInstance?.resize();
@@ -1089,25 +1263,16 @@ async function refreshCharts() {
 
 function renderJobChart(data) {
   if (!data || !data.jobList) return;
-
   const jobNames = data.jobList.map(j => typeof j === 'string' ? j : (j.name || j.job || '未知'));
   const values = data.dataList || [];
-
-  // Use palette categorical colors: series-1 blue, series-2 green, series-3 magenta, series-4 yellow, series-5 aqua
   const palette = ['#2a78d6', '#008300', '#e87ba4', '#eda100', '#1baf7a'];
 
-  const option = {
+  chartJobInstance.setOption({
     tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'shadow' },
-      backgroundColor: '#fcfcfb',
-      borderColor: '#e1e0d9',
-      borderWidth: 1,
+      trigger: 'axis', axisPointer: { type: 'shadow' },
+      backgroundColor: '#fcfcfb', borderColor: '#e1e0d9', borderWidth: 1,
       textStyle: { color: '#0b0b0b', fontSize: 13, fontFamily: 'system-ui, sans-serif' },
-      formatter: function(params) {
-        const p = params[0];
-        return `<strong>${p.name}</strong><br/>员工人数: <strong>${p.value}</strong> 人`;
-      }
+      formatter: p => `<strong>${p[0].name}</strong><br/>员工人数: <strong>${p[0].value}</strong> 人`
     },
     grid: { left: '3%', right: '10%', top: '8%', bottom: '6%', containLabel: true },
     xAxis: {
@@ -1116,103 +1281,57 @@ function renderJobChart(data) {
       axisTick: { show: false },
       axisLabel: { color: '#898781', fontSize: 12, fontFamily: 'system-ui, sans-serif' },
       splitLine: { lineStyle: { color: '#e1e0d9', type: 'dashed' } },
-      name: '人数',
-      nameTextStyle: { color: '#898781', fontSize: 12 },
+      name: '人数', nameTextStyle: { color: '#898781', fontSize: 12 },
     },
     yAxis: {
-      type: 'category',
-      data: jobNames,
+      type: 'category', data: jobNames,
       axisLine: { lineStyle: { color: '#c3c2b7' } },
       axisTick: { show: false },
       axisLabel: { color: '#0b0b0b', fontSize: 13, fontFamily: 'system-ui, sans-serif' },
       inverse: true,
     },
     series: [{
-      type: 'bar',
+      type: 'bar', barWidth: 22,
       data: values.map((v, i) => ({
         value: v,
-        itemStyle: {
-          color: palette[i % palette.length],
-          borderRadius: [0, 4, 4, 0],
-        }
+        itemStyle: { color: palette[i % palette.length], borderRadius: [0, 4, 4, 0] }
       })),
-      barWidth: 22,
-      emphasis: {
-        itemStyle: { color: palette[0] },
-      },
+      emphasis: { itemStyle: { color: palette[0] } },
     }],
-  };
-
-  chartJobInstance.setOption(option, true);
+  }, true);
 }
 
 function renderGenderChart(data) {
   if (!data || !Array.isArray(data)) return;
-
-  const names = data.map(d => d.name || (d.gender === 1 ? '男' : '女'));
+  const names = data.map(d => (d.name || '').toString().includes('男') ? '男' : '女');
   const values = data.map(d => d.value || d.count || 0);
-
-  // Male: blue, Female: magenta
   const palette = ['#2a78d6', '#e87ba4'];
 
-  const total = values.reduce((a, b) => a + b, 0);
-
-  const option = {
+  chartGenderInstance.setOption({
     tooltip: {
       trigger: 'item',
-      backgroundColor: '#fcfcfb',
-      borderColor: '#e1e0d9',
-      borderWidth: 1,
+      backgroundColor: '#fcfcfb', borderColor: '#e1e0d9', borderWidth: 1,
       textStyle: { color: '#0b0b0b', fontSize: 13, fontFamily: 'system-ui, sans-serif' },
-      formatter: function(params) {
-        return `<strong>${params.name}</strong><br/>人数: <strong>${params.value}</strong> 人 (${params.percent}%)`;
-      }
+      formatter: p => `<strong>${p.name}</strong><br/>人数: <strong>${p.value}</strong> 人 (${p.percent}%)`
     },
     legend: {
-      orient: 'horizontal',
-      bottom: 0,
+      orient: 'horizontal', bottom: 0,
       textStyle: { color: '#52514e', fontSize: 13, fontFamily: 'system-ui, sans-serif' },
-      itemWidth: 10,
-      itemHeight: 10,
-      itemGap: 24,
+      itemWidth: 10, itemHeight: 10, itemGap: 24,
     },
     series: [{
-      type: 'pie',
-      radius: ['55%', '78%'],
-      center: ['50%', '46%'],
+      type: 'pie', radius: ['55%', '78%'], center: ['50%', '46%'],
       avoidLabelOverlap: false,
-      itemStyle: {
-        borderRadius: 4,
-        borderColor: '#fcfcfb',
-        borderWidth: 2,
-      },
+      itemStyle: { borderRadius: 4, borderColor: '#fcfcfb', borderWidth: 2 },
       label: {
-        show: true,
-        position: 'outside',
-        formatter: '{b}\n{d}%',
-        color: '#52514e',
-        fontSize: 13,
-        fontFamily: 'system-ui, sans-serif',
-        lineHeight: 18,
+        show: true, position: 'outside', formatter: '{b}\n{d}%',
+        color: '#52514e', fontSize: 13, fontFamily: 'system-ui, sans-serif', lineHeight: 18,
       },
-      labelLine: {
-        lineStyle: { color: '#c3c2b7' },
-        length: 24,
-        length2: 28,
-      },
-      emphasis: {
-        label: { fontSize: 16, fontWeight: 'bold' },
-        scaleSize: 6,
-      },
-      data: names.map((name, i) => ({
-        name,
-        value: values[i],
-        itemStyle: { color: palette[i] },
-      })),
+      labelLine: { lineStyle: { color: '#c3c2b7' }, length: 24, length2: 28 },
+      emphasis: { label: { fontSize: 16, fontWeight: 'bold' }, scaleSize: 6 },
+      data: names.map((name, i) => ({ name, value: values[i], itemStyle: { color: palette[i] } })),
     }],
-  };
-
-  chartGenderInstance.setOption(option, true);
+  }, true);
 }
 
 // ===== Toast =====
@@ -1231,6 +1350,10 @@ function escHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+function escHtmlAttr(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#39;');
 }
 </script>
 
