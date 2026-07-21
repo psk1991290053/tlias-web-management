@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 1. 控制台输出配置：用于在IDEA运行期间实时查看日志 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!-- 格式化输出：
+                 %d 表示日期时间，
+                 %thread 表示线程名，
+                 %-5level 表示级别从左显示5个字符宽度，
+                 %logger{50} 表示Logger名字最长50个字符，
+                 %msg 表示日志消息，
+                 %n 表示换行符 -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 2. 文件输出配置：用于将日志持久化存储，并自动按时间和大小滚动 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 日志文件存放路径及命名规则：D盘根目录，文件名包含日期和序号 -->
+            <FileNamePattern>C:/tlias-%d{yyyy-MM-dd}-%i.log</FileNamePattern>
+            <!-- 最多保留的历史日志文件数量 -->
+            <MaxHistory>30</MaxHistory>
+            <!-- 单个日志文件最大大小，超过10MB会触发滚动生成新文件 -->
+            <maxFileSize>10MB</maxFileSize>
+        </rollingPolicy>
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!-- 文件中的日志格式，与控制台保持一致，便于统一查看 -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 3. 根日志记录器配置：设置全局日志级别并关联上述两个输出源 -->
+    <!-- level="info" 表示只记录 info 及以上级别（info/warn/error）的日志 -->
+    <root level="INFO">
+        <!-- 引用控制台输出 -->
+        <appender-ref ref="STDOUT" />
+        <!-- 引用文件输出 -->
+        <!--<appender-ref ref="FILE" />-->
+    </root>
+</configuration>
