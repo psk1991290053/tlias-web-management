@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>员工管理系统</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+/* ===== CSS Custom Properties (Reference Palette) ===== */
+:root {
+  color-scheme: light;
+  --surface-1:      #fcfcfb;
+  --surface-2:      #f9f9f7;
+  --page-plane:     #f3f3f1;
+  --text-primary:   #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted:     #898781;
+  --gridline:       #e1e0d9;
+  --baseline:       #c3c2b7;
+  --border:         rgba(11,11,11,0.10);
+  --series-1:       #2a78d6;
+  --series-2:       #008300;
+  --series-3:       #e87ba4;
+  --series-4:       #eda100;
+  --series-5:       #1baf7a;
+  --series-6:       #eb6834;
+  --success:        #0ca30c;
+  --warning:        #fab219;
+  --serious:        #ec835a;
+  --critical:       #d03b3b;
+  --delta-up:       #006300;
+  --shadow-sm:      0 1px 2px rgba(11,11,11,0.06);
+  --shadow-md:      0 4px 16px rgba(11,11,11,0.10);
+  --radius-sm:      6px;
+  --radius-md:      10px;
+  --radius-lg:      14px;
+  --font-sans:      system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --transition:     150ms ease;
+}
+
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--page-plane);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ===== Layout ===== */
+.app-header {
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+.app-header h1 { font-size: 18px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; }
+.app-header .header-actions { display: flex; gap: 10px; align-items: center; }
+
+.app-main {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 24px 32px 48px;
+}
+
+/* ===== Stats Row ===== */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surface-1);
+  border-radius: var(--radius-md);
+  padding: 18px 22px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+}
+.stat-card .stat-label { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+.stat-card .stat-value { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stat-card .stat-delta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* ===== Section ===== */
+.section {
+  background: var(--surface-1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.section-header {
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--gridline);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.section-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.section-body { padding: 20px 22px; }
+
+/* ===== Toolbar ===== */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.toolbar .spacer { flex: 1; }
+
+/* ===== Form Controls ===== */
+.input-search {
+  width: 220px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--baseline);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--surface-1);
+  outline: none;
+  transition: border-color var(--transition);
+}
+.input-search::placeholder { color: var(--text-muted); }
+.input-search:focus { border-color: var(--series-1); box-shadow: 0 0 0 3px rgba(42,120,214,0.12); }
+
+.select-filter {
+  height: 36px;
+  padding: 0 32px 0 12px;
+  border: 1px solid var(--baseline);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--surface-1);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23898781' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color var(--transition);
+}
+.select-filter:focus { border-color: var(--series-1); box-shadow: 0 0 0 3px rgba(42,120,214,0.12); }
+
+.date-input {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--baseline);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--surface-1);
+  outline: none;
+  transition: border-color var(--transition);
+}
+.date-input:focus { border-color: var(--series-1); box-shadow: 0 0 0 3px rgba(42,120,214,0.12); }
+
+/* ===== Buttons ===== */
+.btn {
+  height: 36px;
+  padding: 0 16px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all var(--transition);
+  user-select: none;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--series-1); color: #fff; }
+.btn-primary:hover { background: #2368bd; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { background: #088a08; }
+.btn-danger { background: transparent; color: var(--critical); border: 1px solid var(--critical); }
+.btn-danger:hover { background: var(--critical); color: #fff; }
+.btn-danger-solid { background: var(--critical); color: #fff; }
+.btn-danger-solid:hover { background: #b83333; }
+.btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--baseline); }
+.btn-ghost:hover { background: var(--surface-2); border-color: var(--text-muted); }
+.btn-reset { background: transparent; color: var(--text-muted); padding: 0 8px; }
+.btn-reset:hover { color: var(--text-secondary); }
+.btn-sm { height: 30px; padding: 0 10px; font-size: 12px; }
+
+/* ===== Table ===== */
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+thead th {
+  text-align: left;
+  padding: 10px 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: none;
+  border-bottom: 2px solid var(--gridline);
+  white-space: nowrap;
+  background: var(--surface-2);
+}
+thead th:first-child { border-radius: var(--radius-sm) 0 0 0; }
+thead th:last-child { border-radius: 0 var(--radius-sm) 0 0; }
+tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--gridline);
+  color: var(--text-primary);
+}
+tbody tr:hover { background: rgba(42,120,214,0.03); }
+tbody tr:last-child td { border-bottom: none; }
+
+.checkbox-cell { width: 40px; text-align: center; }
+input[type="checkbox"] {
+  width: 16px; height: 16px; cursor: pointer; accent-color: var(--series-1);
+}
+.actions-cell { white-space: nowrap; display: flex; gap: 6px; }
+.actions-cell .btn { height: 28px; font-size: 12px; padding: 0 10px; }
+
+.gender-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.gender-male { background: rgba(42,120,214,0.10); color: var(--series-1); }
+.gender-female { background: rgba(232,123,164,0.10); color: #c94573; }
+
+.job-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 0;
+  color: var(--text-muted);
+}
+.empty-state svg { margin-bottom: 12px; opacity: 0.3; }
+
+/* ===== Pagination ===== */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 16px;
+  margin-top: 8px;
+  border-top: 1px solid var(--gridline);
+}
+.pagination-info { font-size: 13px; color: var(--text-secondary); }
+.pagination-btns { display: flex; gap: 4px; align-items: center; }
+.pagination-btns .btn { min-width: 36px; justify-content: center; }
+.pagination-btns .btn.active { background: var(--series-1); color: #fff; border-color: var(--series-1); }
+.page-jump {
+  width: 48px;
+  height: 30px;
+  text-align: center;
+  border: 1px solid var(--baseline);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  outline: none;
+}
+
+/* ===== Charts Row ===== */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.chart-container { width: 100%; height: 380px; }
+
+@media (max-width: 900px) {
+  .charts-row { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ===== Modal Overlay ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(11,11,11,0.40);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.active { display: flex; }
+
+.modal {
+  background: var(--surface-1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  width: 560px;
+  max-width: 94vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalIn 200ms ease;
+}
+@keyframes modalIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+.modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--gridline);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-title { font-size: 16px; font-weight: 600; }
+.modal-close {
+  width: 32px; height: 32px;
+  border: none; background: transparent;
+  font-size: 20px; color: var(--text-muted);
+  cursor: pointer; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition);
+}
+.modal-close:hover { background: var(--surface-2); color: var(--text-primary); }
+.modal-body { padding: 24px; }
+.modal-footer {
+  padding: 14px 24px;
+  border-top: 1px solid var(--gridline);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ===== Form ===== */
+.form-group { margin-bottom: 18px; }
+.form-group:last-child { margin-bottom: 0; }
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.form-label .required { color: var(--critical); margin-left: 2px; }
+.form-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--baseline);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--surface-1);
+  outline: none;
+  transition: border-color var(--transition);
+}
+.form-input:focus { border-color: var(--series-1); box-shadow: 0 0 0 3px rgba(42,120,214,0.10); }
+.form-input.error { border-color: var(--critical); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ===== Toast ===== */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.toast {
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  box-shadow: var(--shadow-md);
+  animation: toastIn 300ms ease;
+  max-width: 340px;
+}
+.toast-success { background: var(--success); }
+.toast-error { background: var(--critical); }
+@keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ===== Loading ===== */
+.loading-spinner {
+  display: none;
+  width: 24px; height: 24px;
+  border: 3px solid var(--gridline);
+  border-top-color: var(--series-1);
+  border-radius: 50%;
+  animation: spin 600ms linear infinite;
+}
+.loading-spinner.active { display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== File Upload ===== */
+.image-preview {
+  width: 80px; height: 80px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 1px solid var(--baseline);
+  margin-top: 8px;
+}
+
+/* ===== Confirm Dialog ===== */
+.confirm-content {
+  text-align: center;
+  padding: 12px 0;
+}
+.confirm-icon {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: rgba(208,59,59,0.10);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  font-size: 24px;
+  color: var(--critical);
+}
+.confirm-text { font-size: 14px; color: var(--text-secondary); }
+.confirm-highlight { font-weight: 600; color: var(--text-primary); }
+</style>
+</head>
+<body>
+
+<!-- ===== Header ===== -->
+<header class="app-header">
+  <h1>📋 员工管理系统</h1>
+  <div class="header-actions">
+    <button class="btn btn-ghost btn-sm" onclick="refreshData()">🔄 刷新</button>
+  </div>
+</header>
+
+<!-- ===== Main ===== -->
+<main class="app-main">
+
+  <!-- Stats Row -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card">
+      <div class="stat-label">员工总数</div>
+      <div class="stat-value" id="statTotal" style="color: var(--series-1);">--</div>
+      <div class="stat-delta">在职员工</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">男性员工</div>
+      <div class="stat-value" id="statMale" style="color: var(--series-2);">--</div>
+      <div class="stat-delta">占比 <span id="statMalePct">--</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">女性员工</div>
+      <div class="stat-value" id="statFemale" style="color: var(--series-3);">--</div>
+      <div class="stat-delta">占比 <span id="statFemalePct">--</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">职位类别</div>
+      <div class="stat-value" id="statJobTypes" style="color: var(--series-5);">--</div>
+      <div class="stat-delta">覆盖岗位类型</div>
+    </div>
+  </div>
+
+  <!-- Employee Table Section -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">👥 员工列表</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost btn-sm" id="btnBatchDelete" style="display:none;" onclick="batchDelete()">🗑️ 批量删除</button>
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新增员工</button>
+      </div>
+    </div>
+    <div class="section-body">
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <input type="text" class="input-search" id="searchName" placeholder="🔍 搜索员工姓名..." oninput="onSearchChange()">
+        <select class="select-filter" id="filterGender" onchange="onFilterChange()">
+          <option value="">全部性别</option>
+          <option value="1">男</option>
+          <option value="2">女</option>
+        </select>
+        <input type="date" class="date-input" id="filterBegin" onchange="onFilterChange()" title="入职开始日期">
+        <span style="color:var(--text-muted);font-size:12px;">至</span>
+        <input type="date" class="date-input" id="filterEnd" onchange="onFilterChange()" title="入职结束日期">
+        <button class="btn btn-reset btn-sm" onclick="resetFilters()">清除筛选</button>
+        <span class="spacer"></span>
+        <span style="font-size:12px;color:var(--text-muted);" id="tableInfo">加载中...</span>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="checkbox-cell"><input type="checkbox" id="checkAll" onchange="toggleCheckAll()"></th>
+              <th>ID</th>
+              <th>姓名</th>
+              <th>性别</th>
+              <th>手机号</th>
+              <th>职位</th>
+              <th>薪资</th>
+              <th>所属部门</th>
+              <th>入职日期</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="10" class="empty-state">加载中...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination">
+        <div class="pagination-info" id="paginationInfo">--</div>
+        <div class="pagination-btns" id="paginationBtns"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts-row">
+    <div class="section">
+      <div class="section-header"><span class="section-title">📊 职位分布统计</span></div>
+      <div class="section-body" style="padding:8px 12px;">
+        <div class="chart-container" id="chartJob"></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header"><span class="section-title">⚥ 性别分布统计</span></div>
+      <div class="section-body" style="padding:8px 12px;">
+        <div class="chart-container" id="chartGender"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ===== Add/Edit Modal ===== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">新增员工</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="empForm" onsubmit="submitForm(event)">
+        <input type="hidden" id="formEmpId">
+
+        <div class="form-group">
+          <label class="form-label">用户名<span class="required">*</span></label>
+          <input type="text" class="form-input" id="formUsername" required placeholder="请输入用户名">
+        </div>
+
+        <div class="form-group" id="passwordGroup">
+          <label class="form-label">密码<span class="required">*</span></label>
+          <input type="text" class="form-input" id="formPassword" placeholder="请输入密码">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">姓名<span class="required">*</span></label>
+          <input type="text" class="form-input" id="formName" required placeholder="请输入姓名">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">性别<span class="required">*</span></label>
+            <select class="select-filter" style="width:100%;" id="formGender" required>
+              <option value="">请选择</option>
+              <option value="1">男</option>
+              <option value="2">女</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">手机号</label>
+            <input type="text" class="form-input" id="formPhone" placeholder="请输入手机号">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">职位<span class="required">*</span></label>
+            <select class="select-filter" style="width:100%;" id="formJob" required>
+              <option value="">请选择</option>
+              <option value="1">班主任</option>
+              <option value="2">讲师</option>
+              <option value="3">学工主管</option>
+              <option value="4">教研主管</option>
+              <option value="5">咨询师</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">薪资</label>
+            <input type="number" class="form-input" id="formSalary" placeholder="请输入薪资" min="0">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">所属部门</label>
+            <select class="select-filter" style="width:100%;" id="formDept">
+              <option value="">请选择部门</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">入职日期</label>
+            <input type="date" class="date-input" style="width:100%;" id="formEntryDate">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">头像URL</label>
+          <input type="text" class="form-input" id="formImage" placeholder="请输入头像图片URL（选填）">
+          <img class="image-preview" id="imagePreview" src="" alt="预览" style="display:none;">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" id="btnSubmit" onclick="document.getElementById('empForm').requestSubmit()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Confirm Delete Modal ===== -->
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal" style="width:400px;">
+    <div class="modal-header">
+      <span class="modal-title">确认删除</span>
+      <button class="modal-close" onclick="closeConfirm()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-content">
+        <div class="confirm-icon">⚠</div>
+        <div class="confirm-text" id="confirmText">确定要删除该员工吗？</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeConfirm()">取消</button>
+      <button class="btn btn-danger-solid" id="btnConfirmDelete" onclick="executeDelete()">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Toast Container ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ===== Constants =====
+const API_BASE = 'http://localhost:8080';
+const JOB_MAP = { 1: '班主任', 2: '讲师', 3: '学工主管', 4: '教研主管', 5: '咨询师' };
+const GENDER_MAP = { 1: '男', 2: '女' };
+
+// Job badge colors (use palette categorical slots, lightened for background)
+const JOB_COLORS = {
+  1: { bg: 'rgba(42,120,214,0.10)', fg: '#2a78d6' },
+  2: { bg: 'rgba(0,131,0,0.10)',   fg: '#008300' },
+  3: { bg: 'rgba(232,123,164,0.10)', fg: '#c94573' },
+  4: { bg: 'rgba(237,161,0,0.10)', fg: '#bd8100' },
+  5: { bg: 'rgba(27,175,122,0.10)', fg: '#158a5f' },
+};
+
+// ===== State =====
+let state = {
+  page: 1,
+  pageSize: 10,
+  total: 0,
+  employees: [],
+  selectedIds: new Set(),
+  editMode: false,
+  pendingDeleteIds: [],
+  depts: [],
+  searchTimer: null,
+};
+
+// ===== Init =====
+document.addEventListener('DOMContentLoaded', () => {
+  loadDepartments();
+  refreshData();
+  initCharts();
+
+  // Image preview
+  document.getElementById('formImage').addEventListener('input', function() {
+    const url = this.value.trim();
+    const preview = document.getElementById('imagePreview');
+    if (url) { preview.src = url; preview.style.display = 'block'; }
+    else { preview.src = ''; preview.style.display = 'none'; }
+  });
+
+  // Modal overlay click to close
+  document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+  document.getElementById('confirmOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeConfirm();
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { closeModal(); closeConfirm(); }
+  });
+});
+
+// ===== API Helpers =====
+async function api(url, options = {}) {
+  try {
+    const res = await fetch(API_BASE + url, {
+      headers: { 'Content-Type': 'application/json', ...options.headers },
+      ...options,
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const result = await res.json();
+    if (result.code !== 1) throw new Error(result.msg || '请求失败');
+    return result.data;
+  } catch (err) {
+    showToast(err.message, 'error');
+    throw err;
+  }
+}
+
+// ===== Load Departments =====
+async function loadDepartments() {
+  try {
+    state.depts = await api('/depts') || [];
+    renderDeptOptions();
+  } catch (e) { /* ignore */ }
+}
+
+function renderDeptOptions() {
+  const select = document.getElementById('formDept');
+  select.innerHTML = '<option value="">请选择部门</option>' +
+    state.depts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+}
+
+// ===== Load Employee Data =====
+async function refreshData() {
+  const params = new URLSearchParams();
+  params.set('page', state.page);
+  params.set('pageSize', state.pageSize);
+
+  const name = document.getElementById('searchName').value.trim();
+  const gender = document.getElementById('filterGender').value;
+  const begin = document.getElementById('filterBegin').value;
+  const end = document.getElementById('filterEnd').value;
+
+  if (name) params.set('name', name);
+  if (gender) params.set('gender', gender);
+  if (begin) params.set('begin', begin);
+  if (end) params.set('end', end);
+
+  try {
+    const data = await api(`/emps?${params.toString()}`);
+    state.total = data.total || 0;
+    state.employees = data.rows || [];
+    state.selectedIds.clear();
+    document.getElementById('checkAll').checked = false;
+    renderTable();
+    renderPagination();
+    updateStats();
+  } catch (e) {
+    document.getElementById('tableBody').innerHTML =
+      '<tr><td colspan="10" class="empty-state">❌ 加载失败，请确认后端服务已启动</td></tr>';
+  }
+}
+
+// ===== Render Table =====
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  const emps = state.employees;
+
+  if (emps.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" class="empty-state">📭 暂无员工数据</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = emps.map(emp => {
+    const genderBadge = emp.gender === 1
+      ? '<span class="gender-badge gender-male">男</span>'
+      : '<span class="gender-badge gender-female">女</span>';
+
+    const jobName = JOB_MAP[emp.job] || '未知';
+    const jc = JOB_COLORS[emp.job] || JOB_COLORS[1];
+    const jobBadge = `<span class="job-badge" style="background:${jc.bg};color:${jc.fg};">${jobName}</span>`;
+
+    const salary = emp.salary != null ? '¥' + Number(emp.salary).toLocaleString() : '--';
+    const deptName = emp.deptName || '--';
+    const entryDate = emp.entryDate || '--';
+    const phone = emp.phone || '--';
+    const checked = state.selectedIds.has(emp.id) ? 'checked' : '';
+
+    return `<tr>
+      <td class="checkbox-cell"><input type="checkbox" ${checked} onchange="toggleSelect(${emp.id}, this.checked)"></td>
+      <td>${emp.id}</td>
+      <td><strong>${escHtml(emp.name)}</strong></td>
+      <td>${genderBadge}</td>
+      <td>${escHtml(phone)}</td>
+      <td>${jobBadge}</td>
+      <td>${salary}</td>
+      <td>${escHtml(deptName)}</td>
+      <td>${entryDate}</td>
+      <td>
+        <div class="actions-cell">
+          <button class="btn btn-primary btn-sm" onclick="openEditModal(${emp.id})">编辑</button>
+          <button class="btn btn-danger btn-sm" onclick="confirmDelete([${emp.id}], '${escHtml(emp.name)}')">删除</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tableInfo').textContent = `共 ${state.total} 条记录`;
+}
+
+// ===== Render Pagination =====
+function renderPagination() {
+  const totalPages = Math.ceil(state.total / state.pageSize) || 1;
+  const container = document.getElementById('paginationBtns');
+
+  let html = '';
+  html += `<button class="btn btn-ghost btn-sm" onclick="goPage(${state.page - 1})" ${state.page <= 1 ? 'disabled' : ''}>‹ 上一页</button>`;
+
+  // Page buttons
+  const maxButtons = 7;
+  let start = Math.max(1, state.page - Math.floor(maxButtons / 2));
+  let end = Math.min(totalPages, start + maxButtons - 1);
+  if (end - start < maxButtons - 1) start = Math.max(1, end - maxButtons + 1);
+
+  for (let i = start; i <= end; i++) {
+    html += `<button class="btn btn-ghost btn-sm${i === state.page ? ' active' : ''}" onclick="goPage(${i})">${i}</button>`;
+  }
+
+  html += `<button class="btn btn-ghost btn-sm" onclick="goPage(${state.page + 1})" ${state.page >= totalPages ? 'disabled' : ''}>下一页 ›</button>`;
+
+  html += `<span style="margin-left:8px;font-size:12px;color:var(--text-muted);">跳至</span>
+    <input type="number" class="page-jump" id="pageJump" min="1" max="${totalPages}" value="${state.page}"
+      onkeydown="if(event.key==='Enter')goPage(parseInt(this.value))">`;
+
+  container.innerHTML = html;
+  document.getElementById('paginationInfo').textContent = `第 ${state.page} / ${totalPages} 页，共 ${state.total} 条`;
+}
+
+function goPage(p) {
+  const totalPages = Math.ceil(state.total / state.pageSize) || 1;
+  if (p < 1 || p > totalPages || p === state.page) return;
+  state.page = p;
+  refreshData();
+}
+
+// ===== Selection =====
+function toggleSelect(id, checked) {
+  if (checked) state.selectedIds.add(id);
+  else state.selectedIds.delete(id);
+  updateBatchDeleteBtn();
+}
+
+function toggleCheckAll() {
+  const checked = document.getElementById('checkAll').checked;
+  state.employees.forEach(e => {
+    if (checked) state.selectedIds.add(e.id);
+    else state.selectedIds.delete(e.id);
+  });
+  renderTable();
+  updateBatchDeleteBtn();
+}
+
+function updateBatchDeleteBtn() {
+  const btn = document.getElementById('btnBatchDelete');
+  const count = state.selectedIds.size;
+  if (count > 0) {
+    btn.style.display = 'inline-flex';
+    btn.textContent = `🗑️ 批量删除 (${count})`;
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function batchDelete() {
+  if (state.selectedIds.size === 0) return;
+  confirmDelete([...state.selectedIds], `选中的 ${state.selectedIds.size} 名员工`);
+}
+
+// ===== Delete =====
+function confirmDelete(ids, label) {
+  state.pendingDeleteIds = ids;
+  document.getElementById('confirmText').innerHTML =
+    `确定要删除 <span class="confirm-highlight">${label}</span> 吗？<br><span style="font-size:12px;color:var(--text-muted);">此操作不可撤销</span>`;
+  document.getElementById('confirmOverlay').classList.add('active');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('active');
+  state.pendingDeleteIds = [];
+}
+
+async function executeDelete() {
+  const ids = state.pendingDeleteIds;
+  if (ids.length === 0) return;
+  closeConfirm();
+
+  try {
+    await api(`/emps?${ids.map(id => 'ids=' + id).join('&')}`, { method: 'DELETE' });
+    showToast(`成功删除 ${ids.length} 名员工`, 'success');
+    state.selectedIds.clear();
+    updateBatchDeleteBtn();
+    if (state.employees.length === ids.length && state.page > 1) state.page--;
+    refreshData();
+    refreshCharts();
+  } catch (e) { /* toast already shown */ }
+}
+
+// ===== Add / Edit Modal =====
+function openAddModal() {
+  state.editMode = false;
+  document.getElementById('modalTitle').textContent = '新增员工';
+  document.getElementById('btnSubmit').textContent = '确认添加';
+  document.getElementById('formEmpId').value = '';
+  document.getElementById('empForm').reset();
+  document.getElementById('passwordGroup').style.display = 'block';
+  document.getElementById('formPassword').required = true;
+  document.getElementById('imagePreview').style.display = 'none';
+  document.getElementById('imagePreview').src = '';
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+async function openEditModal(id) {
+  state.editMode = true;
+  document.getElementById('modalTitle').textContent = '编辑员工';
+  document.getElementById('btnSubmit').textContent = '保存修改';
+
+  try {
+    const emp = await api(`/emps/${id}`);
+    document.getElementById('formEmpId').value = emp.id;
+    document.getElementById('formUsername').value = emp.username || '';
+    document.getElementById('formPassword').value = '';
+    document.getElementById('formPassword').required = false;
+    document.getElementById('passwordGroup').style.display = 'block';
+    document.getElementById('formName').value = emp.name || '';
+    document.getElementById('formGender').value = emp.gender || '';
+    document.getElementById('formPhone').value = emp.phone || '';
+    document.getElementById('formJob').value = emp.job || '';
+    document.getElementById('formSalary').value = emp.salary || '';
+    document.getElementById('formDept').value = emp.deptId || '';
+    document.getElementById('formEntryDate').value = emp.entryDate || '';
+    document.getElementById('formImage').value = emp.image || '';
+
+    const preview = document.getElementById('imagePreview');
+    if (emp.image) { preview.src = emp.image; preview.style.display = 'block'; }
+    else { preview.src = ''; preview.style.display = 'none'; }
+
+    document.getElementById('modalOverlay').classList.add('active');
+  } catch (e) { /* toast already shown */ }
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.getElementById('empForm').reset();
+}
+
+async function submitForm(e) {
+  e.preventDefault();
+
+  const emp = {
+    username: document.getElementById('formUsername').value.trim(),
+    name: document.getElementById('formName').value.trim(),
+    gender: parseInt(document.getElementById('formGender').value),
+    phone: document.getElementById('formPhone').value.trim(),
+    job: parseInt(document.getElementById('formJob').value),
+    salary: document.getElementById('formSalary').value ? parseInt(document.getElementById('formSalary').value) : null,
+    deptId: document.getElementById('formDept').value ? parseInt(document.getElementById('formDept').value) : null,
+    entryDate: document.getElementById('formEntryDate').value || null,
+    image: document.getElementById('formImage').value.trim() || null,
+  };
+
+  const id = document.getElementById('formEmpId').value;
+  const password = document.getElementById('formPassword').value.trim();
+
+  if (state.editMode) {
+    emp.id = parseInt(id);
+    if (password) emp.password = password;
+  } else {
+    if (!password) { showToast('请输入密码', 'error'); return; }
+    emp.password = password;
+  }
+
+  try {
+    if (state.editMode) {
+      await api('/emps', { method: 'PUT', body: JSON.stringify(emp) });
+      showToast('员工信息修改成功', 'success');
+    } else {
+      await api('/emps', { method: 'POST', body: JSON.stringify(emp) });
+      showToast('员工添加成功', 'success');
+    }
+    closeModal();
+    refreshData();
+    refreshCharts();
+  } catch (e) { /* toast already shown */ }
+}
+
+// ===== Search & Filter =====
+function onSearchChange() {
+  clearTimeout(state.searchTimer);
+  state.searchTimer = setTimeout(() => {
+    state.page = 1;
+    refreshData();
+  }, 350);
+}
+
+function onFilterChange() {
+  state.page = 1;
+  refreshData();
+}
+
+function resetFilters() {
+  document.getElementById('searchName').value = '';
+  document.getElementById('filterGender').value = '';
+  document.getElementById('filterBegin').value = '';
+  document.getElementById('filterEnd').value = '';
+  state.page = 1;
+  refreshData();
+}
+
+// ===== Stats Update =====
+async function updateStats() {
+  try {
+    const genderData = await api('/report/empGenderData');
+    let maleCount = 0, femaleCount = 0;
+    if (Array.isArray(genderData)) {
+      genderData.forEach(item => {
+        if (item.name === '男' || item.gender === 1 || item.name === '男性') maleCount = item.value || item.count || 0;
+        if (item.name === '女' || item.gender === 2 || item.name === '女性') femaleCount = item.value || item.count || 0;
+      });
+    }
+    const total = maleCount + femaleCount;
+
+    document.getElementById('statTotal').textContent = total || state.total || '--';
+    document.getElementById('statMale').textContent = maleCount || '--';
+    document.getElementById('statFemale').textContent = femaleCount || '--';
+    document.getElementById('statMalePct').textContent = total > 0 ? Math.round(maleCount / total * 100) + '%' : '--';
+    document.getElementById('statFemalePct').textContent = total > 0 ? Math.round(femaleCount / total * 100) + '%' : '--';
+
+    const jobData = await api('/report/empJobData');
+    const jobCount = jobData?.jobList?.length || 0;
+    document.getElementById('statJobTypes').textContent = jobCount || '--';
+  } catch (e) { /* ignore */ }
+}
+
+// ===== Charts =====
+let chartJobInstance, chartGenderInstance;
+
+function initCharts() {
+  chartJobInstance = echarts.init(document.getElementById('chartJob'));
+  chartGenderInstance = echarts.init(document.getElementById('chartGender'));
+  refreshCharts();
+
+  window.addEventListener('resize', () => {
+    chartJobInstance?.resize();
+    chartGenderInstance?.resize();
+  });
+}
+
+async function refreshCharts() {
+  try {
+    const [jobData, genderData] = await Promise.all([
+      api('/report/empJobData'),
+      api('/report/empGenderData'),
+    ]);
+    renderJobChart(jobData);
+    renderGenderChart(genderData);
+  } catch (e) { /* ignore */ }
+}
+
+function renderJobChart(data) {
+  if (!data || !data.jobList) return;
+
+  const jobNames = data.jobList.map(j => typeof j === 'string' ? j : (j.name || j.job || '未知'));
+  const values = data.dataList || [];
+
+  // Use palette categorical colors: series-1 blue, series-2 green, series-3 magenta, series-4 yellow, series-5 aqua
+  const palette = ['#2a78d6', '#008300', '#e87ba4', '#eda100', '#1baf7a'];
+
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      backgroundColor: '#fcfcfb',
+      borderColor: '#e1e0d9',
+      borderWidth: 1,
+      textStyle: { color: '#0b0b0b', fontSize: 13, fontFamily: 'system-ui, sans-serif' },
+      formatter: function(params) {
+        const p = params[0];
+        return `<strong>${p.name}</strong><br/>员工人数: <strong>${p.value}</strong> 人`;
+      }
+    },
+    grid: { left: '3%', right: '10%', top: '8%', bottom: '6%', containLabel: true },
+    xAxis: {
+      type: 'value',
+      axisLine: { lineStyle: { color: '#c3c2b7' } },
+      axisTick: { show: false },
+      axisLabel: { color: '#898781', fontSize: 12, fontFamily: 'system-ui, sans-serif' },
+      splitLine: { lineStyle: { color: '#e1e0d9', type: 'dashed' } },
+      name: '人数',
+      nameTextStyle: { color: '#898781', fontSize: 12 },
+    },
+    yAxis: {
+      type: 'category',
+      data: jobNames,
+      axisLine: { lineStyle: { color: '#c3c2b7' } },
+      axisTick: { show: false },
+      axisLabel: { color: '#0b0b0b', fontSize: 13, fontFamily: 'system-ui, sans-serif' },
+      inverse: true,
+    },
+    series: [{
+      type: 'bar',
+      data: values.map((v, i) => ({
+        value: v,
+        itemStyle: {
+          color: palette[i % palette.length],
+          borderRadius: [0, 4, 4, 0],
+        }
+      })),
+      barWidth: 22,
+      emphasis: {
+        itemStyle: { color: palette[0] },
+      },
+    }],
+  };
+
+  chartJobInstance.setOption(option, true);
+}
+
+function renderGenderChart(data) {
+  if (!data || !Array.isArray(data)) return;
+
+  const names = data.map(d => d.name || (d.gender === 1 ? '男' : '女'));
+  const values = data.map(d => d.value || d.count || 0);
+
+  // Male: blue, Female: magenta
+  const palette = ['#2a78d6', '#e87ba4'];
+
+  const total = values.reduce((a, b) => a + b, 0);
+
+  const option = {
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: '#fcfcfb',
+      borderColor: '#e1e0d9',
+      borderWidth: 1,
+      textStyle: { color: '#0b0b0b', fontSize: 13, fontFamily: 'system-ui, sans-serif' },
+      formatter: function(params) {
+        return `<strong>${params.name}</strong><br/>人数: <strong>${params.value}</strong> 人 (${params.percent}%)`;
+      }
+    },
+    legend: {
+      orient: 'horizontal',
+      bottom: 0,
+      textStyle: { color: '#52514e', fontSize: 13, fontFamily: 'system-ui, sans-serif' },
+      itemWidth: 10,
+      itemHeight: 10,
+      itemGap: 24,
+    },
+    series: [{
+      type: 'pie',
+      radius: ['55%', '78%'],
+      center: ['50%', '46%'],
+      avoidLabelOverlap: false,
+      itemStyle: {
+        borderRadius: 4,
+        borderColor: '#fcfcfb',
+        borderWidth: 2,
+      },
+      label: {
+        show: true,
+        position: 'outside',
+        formatter: '{b}\n{d}%',
+        color: '#52514e',
+        fontSize: 13,
+        fontFamily: 'system-ui, sans-serif',
+        lineHeight: 18,
+      },
+      labelLine: {
+        lineStyle: { color: '#c3c2b7' },
+        length: 24,
+        length2: 28,
+      },
+      emphasis: {
+        label: { fontSize: 16, fontWeight: 'bold' },
+        scaleSize: 6,
+      },
+      data: names.map((name, i) => ({
+        name,
+        value: values[i],
+        itemStyle: { color: palette[i] },
+      })),
+    }],
+  };
+
+  chartGenderInstance.setOption(option, true);
+}
+
+// ===== Toast =====
+function showToast(msg, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => { toast.remove(); }, 3000);
+}
+
+// ===== Utilities =====
+function escHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
