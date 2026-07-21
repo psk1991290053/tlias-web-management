@@ -233,7 +233,7 @@ input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-colo
 
 /* ===== Charts Row ===== */
 .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.chart-container { width: 100%; height: 400px; }
+.chart-container { width: 100%; height: 480px; }
 @media (max-width: 900px) {
   .charts-row { grid-template-columns: 1fr; }
   .stats-row { grid-template-columns: repeat(2, 1fr); }
@@ -463,12 +463,11 @@ input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-colo
                 <th>薪资</th>
                 <th>所属部门</th>
                 <th>入职日期</th>
-                <th>工作经历</th>
                 <th>操作</th>
               </tr>
             </thead>
             <tbody id="tableBody">
-              <tr><td colspan="11" class="empty-state">加载中...</td></tr>
+              <tr><td colspan="10" class="empty-state">加载中...</td></tr>
             </tbody>
           </table>
         </div>
@@ -900,7 +899,7 @@ async function refreshData() {
     updateStats();
   } catch (e) {
     document.getElementById('tableBody').innerHTML =
-      '<tr><td colspan="11" class="empty-state">❌ 加载失败，请确认后端服务已启动</td></tr>';
+      '<tr><td colspan="10" class="empty-state">❌ 加载失败，请确认后端服务已启动</td></tr>';
   }
 }
 
@@ -910,7 +909,7 @@ function renderTable() {
   const emps = state.employees;
 
   if (emps.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="11" class="empty-state">📭 暂无员工数据</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="10" class="empty-state">📭 暂无员工数据</td></tr>';
     return;
   }
 
@@ -929,11 +928,6 @@ function renderTable() {
     const phone = emp.phone || '--';
     const checked = state.selectedIds.has(emp.id) ? 'checked' : '';
 
-    const exprCount = emp.exprList ? emp.exprList.length : 0;
-    const exprBadge = exprCount > 0
-      ? `<span class="expr-count-badge" onclick="viewWorkExperience(${emp.id}, '${escHtmlAttr(emp.name)}')" title="点击查看工作经历">${exprCount} 条经历</span>`
-      : '<span style="color:var(--text-muted);font-size:12px;">无</span>';
-
     return `<tr>
       <td class="checkbox-cell"><input type="checkbox" ${checked} onchange="toggleSelect(${emp.id}, this.checked)"></td>
       <td>${emp.id}</td>
@@ -944,7 +938,6 @@ function renderTable() {
       <td>${salary}</td>
       <td>${escHtml(deptName)}</td>
       <td>${entryDate}</td>
-      <td>${exprBadge}</td>
       <td>
         <div class="actions-cell">
           <button class="btn btn-primary btn-sm" onclick="openEditModal(${emp.id})">编辑</button>
@@ -1316,19 +1309,19 @@ function renderGenderChart(data) {
     },
     legend: {
       orient: 'horizontal', bottom: 0,
-      textStyle: { color: '#52514e', fontSize: 13, fontFamily: 'system-ui, sans-serif' },
-      itemWidth: 10, itemHeight: 10, itemGap: 24,
+      textStyle: { color: '#52514e', fontSize: 14, fontFamily: 'system-ui, sans-serif' },
+      itemWidth: 12, itemHeight: 12, itemGap: 32,
     },
     series: [{
-      type: 'pie', radius: ['55%', '78%'], center: ['50%', '46%'],
+      type: 'pie', radius: ['50%', '75%'], center: ['50%', '45%'],
       avoidLabelOverlap: false,
-      itemStyle: { borderRadius: 4, borderColor: '#fcfcfb', borderWidth: 2 },
+      itemStyle: { borderRadius: 6, borderColor: '#fcfcfb', borderWidth: 3 },
       label: {
         show: true, position: 'outside', formatter: '{b}\n{d}%',
-        color: '#52514e', fontSize: 13, fontFamily: 'system-ui, sans-serif', lineHeight: 18,
+        color: '#52514e', fontSize: 15, fontFamily: 'system-ui, sans-serif', lineHeight: 22,
       },
-      labelLine: { lineStyle: { color: '#c3c2b7' }, length: 24, length2: 28 },
-      emphasis: { label: { fontSize: 16, fontWeight: 'bold' }, scaleSize: 6 },
+      labelLine: { lineStyle: { color: '#c3c2b7' }, length: 30, length2: 40 },
+      emphasis: { label: { fontSize: 18, fontWeight: 'bold' }, scaleSize: 8 },
       data: names.map((name, i) => ({ name, value: values[i], itemStyle: { color: palette[i] } })),
     }],
   }, true);
