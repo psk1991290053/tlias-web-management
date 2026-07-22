@@ -15,7 +15,6 @@ import java.util.Map;
 //员工信息
 @Mapper
 public interface EmpMapper {
-
 //    -------------原始分页查询的实现方式
 
 //    //查询总记录数
@@ -56,5 +55,8 @@ public interface EmpMapper {
     //统计员工性别人数
     List<Map<String, Object>> countEmpGenderData();
 
+    //根据用户名和密码查询员工信息
+    @Select("select id,username,name from emp where username = #{username} and password = #{password}")
+    Emp selectByUsernameAndPassword(Emp emp);
 
 }
